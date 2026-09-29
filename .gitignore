@@ -1,0 +1,10 @@
+/_book/
+/.quarto/
+/_site/
+/site_libs/
+.Rhistory
+.RData
+.Ruserdata
+.Rproj.user/
+/data/*.csv
+.DS_Store

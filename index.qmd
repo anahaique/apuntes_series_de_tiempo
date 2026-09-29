@@ -1,0 +1,9 @@
+---
+title: "Portada"
+---
+
+# Apuntes · Series de tiempo {.unnumbered}
+
+Curso de **Econometría Moderna aplicada a series de tiempo**, por **Mgtr. Ana Haique** y **Dr. Gustavo Gimenez**.
+
+Usá la **barra lateral izquierda** para moverte entre unidades y secciones.

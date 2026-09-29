@@ -1,0 +1,48 @@
+project:
+  type: book
+  output-dir: _book
+
+book:
+  title: "Series de tiempo"
+  subtitle: "Apuntes · Econometría Moderna"
+  author: "Mgtr. Ana Haique · Dr. Gustavo Gimenez"
+  date: "2026"
+  search: true
+  page-navigation: true
+  sidebar:
+    style: docked
+    collapse-level: 1
+  chapters:
+    - index.qmd
+    - part: "Unidad 1 · Naturaleza y análisis descriptivo"
+      chapters:
+        - "unidad1_*.qmd"
+    - part: "Unidad 2"
+      chapters:
+        - "unidad2_*.qmd"
+    - part: "Unidad 3"
+      chapters:
+        - "unidad3_*.qmd"
+    - part: "Unidad 4"
+      chapters:
+        - "unidad4_*.qmd"
+
+format:
+  html:
+    lang: es
+    theme:
+      light: cosmo
+      dark: darkly
+    toc: true
+    toc-depth: 3
+    code-fold: show
+    code-tools: true
+    code-line-numbers: true
+    fig-width: 9
+    fig-height: 4.5
+
+execute:
+  echo: true
+  message: false
+  warning: false
+  cache: false

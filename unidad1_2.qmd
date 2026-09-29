@@ -1,0 +1,448 @@
+---
+title: "Unidad 1 · Sección 2 · EDA"
+subtitle: "Econometría Moderna aplicada a series de tiempo"
+author: "Mgtr. Ana Haique · Dr. Gustavo Gimenez"
+date: "2026"
+lang: es
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    toc-title: "Contenido"
+    code-fold: show
+    code-tools: true
+    code-line-numbers: true
+    theme: cosmo
+    fig-width: 9
+    fig-height: 4.5
+    fig-dpi: 130
+    number-sections: true
+execute:
+  echo: true
+  message: false
+  warning: false
+  cache: false
+---
+
+```{r}
+#| label: setup
+
+
+library(tidyverse)
+library(lubridate)
+library(timetk)
+library(modeltime)
+library(tidymodels)
+```
+
+::: callout-tip
+## Antes de seguir
+
+Esta parte asume que ya leíste la sección 1 de la Unidad 1. Si no, volvé y mirá al menos las secciones *"Naturaleza, componentes y descomposición"* y *"Componentes formales de una serie"*, porque vamos a usar el vocabulario de **tendencia, estacionalidad, ciclo e irregularidad**, y la distinción entre modelos **aditivos y multiplicativos**, sin volver a definirlos.
+:::
+
+# Objetivo de esta sección
+
+Hasta ahora aprendimos a **mirar** una serie y a identificar sus componentes (tendencia, estacionalidad, ciclo, irregularidad) y familiarizarno con el entorno de trabajo. En esta sección vamos a **prepararla** para que un modelo pueda trabajar con ella. Vamos a aprender a realizar un análisis exploratorio más profundo.
+
+# Caso de estudio: producción de cerveza en Australia
+
+Usaremos la serie trimestral de **producción de cerveza en Australia** entre **1956 Q1** y **2010 Q2** (218 observaciones). Es la versión acotada a los años más recientes de la serie `Beer` que viene con el paquete `fpp3`, y un clásico de la literatura de pronóstico. La vamos a importar desde un `.csv` con dos columnas: `Quarter` y `Beer` (producción en megalitros).
+
+::: callout-warning
+## Ubicación del archivo `.csv`
+
+Para que el código de esta guía corra sin modificar nada, guardá el archivo `beer.csv` **en la misma carpeta** que este `.qmd`. Si lo guardás en otro directorio, ajustá la ruta en el chunk de lectura.
+:::
+
+# Lectura e inspección inicial
+
+## Importación cruda
+
+```{r}
+#| label: lectura-cruda
+
+datos_crudos <- read_csv("beer.csv")
+head(datos_crudos)
+```
+
+La columna `Quarter` viene como **texto** con formato `"1956 Q1"`. Antes de poder tratarla como serie de tiempo, tenemos que convertirla a un formato `date`.
+
+## Parseo de la fecha trimestral
+
+```{r}
+#| label: fecha
+
+# yq() de lubridate parsea strings tipo "1956 Q1", "1956-Q1", "1956.Q1", etc.
+datos <- datos_crudos |>
+  mutate(fecha = yq(Quarter)) |>
+  select(fecha, cerveza = Beer) |>
+  arrange(fecha)
+
+str(datos)
+```
+
+::: callout-tip
+## ¿Por qué `yq()`?
+
+`yq()` es un *parser* de `lubridate` específico para fechas económicas trimestrales y devuelve un objeto `Date` real. El resultado es **el primer día del trimestre** (p. ej. `1990-01-01` para `1990 Q1`).
+:::
+
+# Diagnóstico de la calidad
+
+## Verificación de la grilla temporal
+
+Una situación frecuente en series económicas es que falten datos. Vamos a chequearlo explícitamente.
+
+```{r}
+#| label: verificar-grilla
+datos|> filter(is.na(cerveza))
+```
+
+En este dataset la grilla está completa: **122 trimestres observados, 122 trimestres esperados, 0 fechas faltantes**. Esto es ideal — muchos datasets reales no tienen tanta suerte.
+
+::: callout-tip
+## ¿Qué hacer si hay faltantes? (de menor a mayor "fuerza")
+
+1.  **No hacer nada** y aceptar que el método/modelo que vamos a usar sea robusto a `NA`. Pocos lo son.
+2.  **Imputación por arrastre** (`tidyr::fill()`): si el faltante es muy puntual, repetir el último valor conocido. Útil para indicadores económicos que cambian lento.
+3.  **Imputación por interpolación lineal** (`zoo::na.approx()`): suaviza el salto.
+4.  **Imputación por estacionalidad**: reemplazar el valor faltante por el del mismo trimestre del año anterior. Muy razonable para series con estacionalidad marcada.
+5.  **Imputación por modelo** (regresión, k-neighbours, etc.): más costoso pero más preciso.
+
+En esta unidad no vamos a profundizar en imputación, pero queda la idea: **un faltante no se "ignora", se decide cómo tratar** (Hyndman & Athanasopoulos, 2021, sección 3.4).
+:::
+
+## Resumen numérico de la serie
+
+`timetk` trae una función muy útil para un **resumen ejecutivo** de la calidad de una serie: `tk_summary_diagnostics()`. Devuelve, en un solo tibble, todo lo que típicamente queremos saber antes de empezar a modelar.
+
+```{r}
+#| label: resumen-calidad
+
+datos |>
+  tk_summary_diagnostics(
+    .date_var   = fecha
+  )
+```
+
+`UTC` → zona horaria por defecto (no relevante acá porque son fechas, no datetime con hora).
+
+`diff.` → Están medidos en segundos. `diff.minimum = 7776000` segundos = 90 días (Trimestre)
+
+## Visualización inicial indispensable
+
+```{r}
+#| label: visualizacion-inicial
+
+datos |>
+  plot_time_series(
+    .date_var    = fecha,
+    .value       = cerveza,
+    .title       = "Producción trimestral de cerveza en Australia (1956 – 2010)",
+    .x_lab       = "Trimestre",
+    .y_lab       = "cerveza (megalitros)",
+    .smooth      = FALSE
+  )
+```
+
+::: callout-important
+## Lo que ya nos dice este primer gráfico (¡sin haber modelado nada!)
+
+1.  **Tendencia decreciente sostenida**.
+2.  **Estacionalidad trimestral marcada pero aparentemente no-multiplicativa**: los "dientes" tienen aplitud estable a medida que la serie decrece (Varianza constante).
+3.  **No hay huecos visuales** ni picos aislados que griten "outlier" desde lejos.
+
+El gráfico anterior no prueba nada, pero **orienta todo lo que viene**. La estacionalidad aditiva y la varianza constante son señales de que vamos a necesitar.
+
+:::
+
+## Inspección visual: descomposición estacional
+
+```{r fig.height = 12}
+#| label: seasonal-descomposition
+
+datos |> 
+  plot_stl_diagnostics(.date_var    = fecha,
+                       .value       = cerveza,
+                       .frequency   = 4,
+                       .trend       = 24,
+                       .feature_set = c("observed", "season", "trend", "remainder")
+  )
+```
+
+En conjunto, la descomposición muestra que la producción trimestral de cerveza en Australia está dominada por un patrón estacional muy fuerte y estable, acompañado por una tendencia descendente de largo plazo, mientras que la variabilidad residual es relativamente pequeña.
+
+::: {.callout-note title="Definición de `.frequency` y `.trend`"}
+| Periodicidad            | `.frequency` | `.trend` recomendado |
+|:------------------------|-------------:|---------------------:|
+| Mensual                 |           12 |           24 o 36 +1 |
+| Trimestral              |            4 |             8 o 16 +1|
+| Semanal                 |           52 |                104 +1|
+| Diaria (patrón semanal) |            7 |            14 o 28 +1|
+\
+**Regla práctica:**\
+
+- **`.frequency`** corresponde a la cantidad de observaciones que completan un ciclo estacional. 
+- **`.trend`** indica el tamaño de la ventana utilizada para estimar la tendencia. Cuanto mayor sea este valor, más suave será la tendencia estimada.
+:::
+
+STL (Seasonal and Trend decomposition using Loess) es un método que descompone una serie temporal en tres componentes principales:
+
+$$Observed = Trend+Seasson+Remainder$$
+
+La principal ventaja de STL es que estima cada componente de forma flexible mediante suavizado local (LOESS), por lo que resulta adecuado para series con patrones complejos.
+
+::: {.callout-tip title="LOESS (Locally Estimated Scatterplot Smoothing)"}
+Es una técnica de suavizado local que ajusta pequeñas regresiones sobre grupos de observaciones cercanas, en lugar de ajustar una única función para toda la serie. Es decir:
+
+-   Para estimar el valor de un punto, LOESS utiliza únicamente las observaciones cercanas.
+-   Repite este procedimiento para cada punto de la serie.
+-   Al unir todas esas estimaciones se obtiene una curva suave que sigue la tendencia de los datos.
+
+Por eso, en la descomposición STL, la tendencia no se representa mediante una recta o un polinomio, sino mediante una curva que puede adaptarse a cambios graduales en el comportamiento de la serie.
+
+-   **Hyndman, R. J., & Athanasopoulos, G. (2021).** *Forecasting: Principles and Practice* (3rd ed.). Capítulo 3: *Time Series Decomposition*.
+-   **Cleveland, R. B., Cleveland, W. S., McRae, J. E., & Terpenning, I. (1990).** *STL: A Seasonal-Trend Decomposition Procedure Based on Loess*. *Journal of Official Statistics*, 6(1), 3–73.
+:::
+
+## Box plot
+
+`timetk` también nos da una vista rápida de la estacionalidad por subperíodo, ideal para detectar trimestres que se desvían del patrón estacional típico, mediante diagramas de caja.
+
+```{r fig.height = 7}
+#| label: seasonal-diagnostics
+
+# Opcion 1:
+datos |>
+  plot_seasonal_diagnostics(
+    .date_var = fecha,
+    .value    = cerveza,
+    .title    = "Diagnóstico estacional — cerveza Australia"
+  ) 
+
+# Opcion 2:
+datos |>
+  plot_seasonal_diagnostics(
+    .date_var = fecha,
+    .value    = cerveza,
+    .title    = "Diagnóstico estacional — cerveza Australia",
+    .interactive = FALSE
+  ) +
+theme(
+  axis.text.x = element_text(angle = 45, hjust = 1) 
+) # hjust = 1 alineado a la derecha, = 0 a la izquierda, = 0.5 centrado
+
+```
+
+Los paneles muestran la distribución de la serie **dentro de cada año** (panel year) y **dentro de cada trimestre** (panel quarter). Si todos los años tienen la misma forma, no hay años "raros"; si todos los trimestres tienen la misma forma, no hay trimestres "raros".
+
+# Anomalías
+
+## ¿Outlier o anomalía?
+
+-   Un **outlier** clásico (en estadística transversal) es un valor extremo respecto a la distribución de la variable.
+-   En series de tiempo preferimos hablar de **anomalías**: observaciones que se apartan del patrón *esperado* de la serie (tendencia + estacionalidad), no sólo de la media global.
+
+Un valor "alto" en Q4 puede ser **perfectamente normal** si la serie tiene estacionalidad fuerte. Y un valor "moderado" puede ser una anomalía si cae en un Q2 donde la serie suele estar baja.
+
+## Diagnóstico automático de anomalías
+
+Analiza únicamente el componente residual, ya que las anomalías son observaciones que no pueden explicarse ni por la tendencia ni por la estacionalidad. Considera como anomalía aquellos datos que caen por debajo del cuarti 1 (Q1) o por encima del cuartil 3 (Q3) en una magnitud equivalente a tres veces el intervalo intercuartílico.
+
+```{r}
+#| label: anomalias
+
+datos |>
+  plot_anomaly_diagnostics(
+    .date_var    = fecha,
+    .value       = cerveza,
+    .title       = "Diagnóstico de anomalías — cerveza Australia",
+    .interactive = FALSE
+  )
+```
+
+El gráfico marca con puntos rojos los trimestres que la función clasifica como anómalos. La tabla de detalle se obtiene con:
+
+```{r}
+#| label: anomalias-tabla
+
+anomalias <- datos |>
+  tk_anomaly_diagnostics(
+    .date_var = fecha,
+    .value    = cerveza
+  )
+
+anomalias |>
+  filter(anomaly == "Yes") |>
+  arrange(desc(observed))
+```
+
+::: callout-important
+## ¿Borrar o marcar?
+
+En series temporales, **casi nunca se borra un outlier**: la observación es real y forma parte de la historia. Lo que se hace es:
+
+-   **Marcarlo** para diagnóstico (como acabamos de hacer).
+-   **Considerarlo** en el modelo (los modelos robustos lo manejan bien; los modelos clásicos lo absorben como parte del ruido). Identificarlo para el modelo como una variable dicotómica cuando el algoritmo lo permita.
+-   **Explicarlo** si es posible (huelgas, crisis, cambios regulatorios, errores de carga).
+
+En esta serie australiana probablemente no aparezcan outliers clásicos que justifiquen intervención: la variación es **estructural** (estacional + tendencia), no espuria.
+:::
+
+# Transformaciones
+
+Una serie con varianza creciente o estacionalidad multiplicativa no se modela bien con herramientas que asumen varianza constante. Hay algunas transformaciones que estabilizan la varianza y/o remueven tendencia:
+
+| Transformación             | Cuándo se usa                                              | Efecto principal                                         |
+|------------------------|------------------------|------------------------|
+| Logarítimca: $log(Y_t)$ | Varianza crece con el nivel; estacionalidad multiplicativa | Estabiliza varianza, convierte multiplicativo en aditivo |
+| Diferenciación: $\Delta Y_t$ o $\Delta log(Y_t)$ | Serie con tendencia o raíz unitaria                        | Remueve tendencia, reduce estacionariedad               |
+
+La **diferenciación** la vamos a tratar en profundidad en la siguiente sección, cuando hablemos de estacionariedad y *ramdom walk*. Acá la dejamos presentada.
+
+## Transformación logarítmica
+
+```{r}
+#| label: transformacion-log
+
+datos <- datos |>
+  mutate(log_cerveza = log(cerveza))
+```
+
+```{r}
+#| label: viz-log
+
+datos |>
+  plot_time_series(
+    .date_var    = fecha,
+    .value       = log_cerveza,
+    .title       = "log(Producción de cerveza) — efecto sobre varianza y estacionalidad",
+    .x_lab       = "Trimestre",
+    .y_lab       = "log(megalitros)",
+    .smooth      = FALSE
+  )
+```
+
+En este caso la transformación logaritimica no produce cambios porque no era necesaria inicialmente (resolver la actividad sugerida y ver los cambios).
+
+Acá concluye el EDA de la serie australiana. Esta es un **caso de manual**: grilla completa, sin anomalías importantes, con estacionalidad aditiva marcada y tendencia decreciente. No require transformaciones y está lista para particionar y modelar. 
+
+# Partición train / test con `timetk`
+
+Este es el último paso antes de modelar y, curiosamente, el que más se hace mal cuando se empieza.
+
+::: callout-important
+## Regla de oro
+
+En series de tiempo **nunca** se hace una partición aleatoria. La partición respeta el **orden temporal**: el entrenamiento es todo lo anterior al test, y el test es una ventana ubicada al final de la serie.
+:::
+
+`timetk::time_series_split()` hace exactamente esto:
+
+```{r}
+#| label: split
+
+splits <- datos |>
+  time_series_split(
+    date_var  = fecha,
+    assess    = "6 years", #~20% test
+    cumulative = TRUE
+  )
+
+ splits 
+```
+
+El objeto `splits` contiene un `splits` (índices de train) y un `assessment` (índices de test). Para usarlos como tibbles:
+
+```{r}
+#| label: split-extraer
+
+train_data <- training(splits)
+test_data  <- testing(splits)
+
+
+```
+
+## Visualización de la partición
+
+```{r}
+#| label: split-viz
+
+splits |>
+  tk_time_series_cv_plan() |>
+  plot_time_series_cv_plan(
+    .date_var = fecha,
+    .value    = cerveza,
+    .title    = "Partición train / test — cerveza Australia",
+    .x_lab    = "Trimestre",
+    .y_lab    = "cerveza (megalitros)",
+    .interactive = TRUE
+  )
+```
+
+El train queda **azul** y el test queda **rojo**. La frontera entre ambos es el corte temporal. Lo que se hace después con esto es:
+
+1.  Ajustar el modelo **sólo** sobre `train_tbl`.
+2.  Pronosticar para los próximos `n_test` períodos.
+3.  Comparar el pronóstico con `test_tbl`.
+
+::: callout-tip
+## ¿Cuánto dejar para test?
+
+No hay una regla única, pero como guía:
+
+-   Series **anuales**: 2 a 4 años de test.
+-   Series **trimestrales**: 2 a 4 años (8 a 16 trimestres).
+-   Series **mensuales**: 18 a 24 meses.
+-   Series **diarias**: algunos meses.
+-   Simplemente el 20% 
+
+La idea es que el test cubra **al menos un ciclo estacional completo** y, si es posible, un ciclo económico. Acá, con datos trimestrales, 8 trimestres (2 años) alcanzaría para cubrir un ciclo estacional completo.
+:::
+
+## Validación temporal con *rolling origin* (opcional)
+
+Cuando queremos una evaluación más fina — la partición simple se reemplaza por una **validación cruzada con ventana móvil** (*rolling-origin cross-validation*) aunque no la veremos en esta unidad.
+
+# Resumen de lo visto
+
+::: callout-important
+## Lo que aprendimos a hacer
+
+-   **Importar y parsear** fechas trimestrales con `yq()`.
+-   **Verificar la integridad** de la grilla temporal (no sólo `NA` en valores, también fechas faltantes).
+-   **Diagnosticar la calidad** de la serie con `tk_summary_diagnostics()`.
+-   **Visualizar la serie** con `plot_time_series()` y **descomponer su estacionalidad** con `plot_seasonal_diagnostics()`.
+-   **Detectar anomalías** con `plot_anomaly_diagnostics()`, y outliers con reglas de IQR y z-score móvil.
+-   **Aplicar transformaciones** que estabilizan varianza: `log`.
+-   **Particionar la serie** en train / test con `time_series_split()`, respetando el orden temporal, y visualizar el corte con `plot_time_series_cv_plan()`.
+:::
+
+# Actividad Sugerida
+
+El archivo **`preciocord.csv`** contiene la serie mensual del **precio nominal promedio del cordero patagónico (PPCord)**, expresado en pesos por kilogramo/gancho. La información es relevada por los Centros Regionales Patagonia Norte y Patagonia Sur del **INTA** y representa el precio percibido directamente por los productores al momento de la faena.
+
+Utilizando las funciones del paquete **timetk**, realice las siguientes actividades:
+
+1. Importe el archivo `preciocord.csv`, convierta la variable de fecha al formato adecuado y describa el lapso de tiempo que dispone. Verifique la ausencia de `NA`.
+
+2. Visualice la serie temporal en su **escala original** e identifique las principales características observadas (tendencia, variabilidad y posibles cambios en el comportamiento de la serie).
+
+3. Genere una nueva variable correspondiente al **logaritmo natural del precio** y explique brevemente por qué esta transformación puede ser adecuado para el caso en estudio.
+
+4. Realice un **análisis exploratorio completo (EDA)** utilizando la serie transformada. Incluya, como mínimo:
+   - gráfico de la serie temporal;
+   - gráfico estacional;
+   - diagnóstico STL;
+   - diagnóstico de anomalías.
+
+5. Particione la serie en un conjunto de **entrenamiento** y otro de **prueba**, reservando los **últimos 24 meses** para validación. Verifique gráficamente que la partición sea correcta.
+
+---
+
+
+
+
+
+
