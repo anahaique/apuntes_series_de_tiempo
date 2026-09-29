@@ -12,331 +12,331 @@
   {
     "objectID": "unidad1_1.html",
     "href": "unidad1_1.html",
-    "title": "2  Unidad 1 · Sección 1 · Naturaleza de las series",
+    "title": "2  Sección 1 · Naturaleza de las series",
     "section": "",
     "text": "3 Bienvenidos\nEsta unidad es preparatoria. No vas a pronosticar todavía: primero vas a aprender a leer una serie y a manipularla con las herramientas del ecosistema tidyverts + timetk en R, dentro del flujo de trabajo tidyverse.",
     "crumbs": [
       "Unidad 1 · Naturaleza y análisis descriptivo",
-      "<span class='chapter-number'>2</span>  <span class='chapter-title'>Unidad 1 · Sección 1 · Naturaleza de las series</span>"
+      "<span class='chapter-number'>2</span>  <span class='chapter-title'>Sección 1 · Naturaleza de las series</span>"
     ]
   },
   {
     "objectID": "unidad1_1.html#qué-es-una-serie-de-tiempo",
     "href": "unidad1_1.html#qué-es-una-serie-de-tiempo",
-    "title": "2  Unidad 1 · Sección 1 · Naturaleza de las series",
+    "title": "2  Sección 1 · Naturaleza de las series",
     "section": "4.1 ¿Qué es una serie de tiempo?",
     "text": "4.1 ¿Qué es una serie de tiempo?\nUna serie de tiempo es una secuencia de observaciones de una variable registradas a lo largo del tiempo, en intervalos regulares o irregulares. A diferencia de los datos de corte transversal (cross-section), en una serie de tiempo el orden importa y las observaciones suelen estar correlacionadas con su propio pasado.\nSi desordenás las filas de un dataset de corte transversal, no pasa nada. Si desordenás las filas de una serie de tiempo, rompés la estructura. Toda la econometría de series de tiempo se apoya en esta idea.\n\n\n\n\n\n\nNotaNota teórica · Tipos de datos temporales\n\n\n\n\nRegulares vs. irregulares: la mayoría de los modelos asumen observaciones equiespaciadas. Si tenés fechas faltantes, hay que “rellenar” la serie antes de modelar.\nUnivariadas vs. multivariadas: en esta unidad trabajamos con una sola variable por serie.\nDiscretas vs. continuas: en economía casi siempre son discretas (promedio mensual, valor trimestral).\n\n\nReferencia: Hyndman & Athanasopoulos (2021), cap. 1; Gujarati (2017), cap. 12.",
     "crumbs": [
       "Unidad 1 · Naturaleza y análisis descriptivo",
-      "<span class='chapter-number'>2</span>  <span class='chapter-title'>Unidad 1 · Sección 1 · Naturaleza de las series</span>"
+      "<span class='chapter-number'>2</span>  <span class='chapter-title'>Sección 1 · Naturaleza de las series</span>"
     ]
   },
   {
     "objectID": "unidad1_1.html#tratando-datos-temporales-en-r",
     "href": "unidad1_1.html#tratando-datos-temporales-en-r",
-    "title": "2  Unidad 1 · Sección 1 · Naturaleza de las series",
+    "title": "2  Sección 1 · Naturaleza de las series",
     "section": "4.2 Tratando datos temporales en R",
     "text": "4.2 Tratando datos temporales en R\nVeamos nuestra primer serie de tiempo: bioetanol.csv\n\n\nCódigo\ndatos_crudos &lt;- read_csv2(\"bioetanol.csv\")\nglimpse(datos_crudos)\n\n\nRows: 195\nColumns: 2\n$ tiempo     &lt;chr&gt; \"1/1/2010\", \"1/2/2010\", \"1/3/2010\", \"1/4/2010\", \"1/5/2010\",…\n$ produccion &lt;dbl&gt; 771, 4791, 4445, 4549, 5210, 12069, 14575, 15258, 17729, 22…\n\n\nComo era esperable tiempo: chr (texto), no es fecha.\n\n\nCódigo\n# dmy() = día-mes-año. Otras variantes: mdy(), ymd(), ymd_hms(), dmy_hm()\n\ndatos &lt;- datos_crudos  |&gt;\n  mutate(fecha = dmy(tiempo)\n    )|&gt;\n  select(fecha, produccion)\n\nstr(datos)\n\n\ntibble [195 × 2] (S3: tbl_df/tbl/data.frame)\n $ fecha     : Date[1:195], format: \"2010-01-01\" \"2010-02-01\" ...\n $ produccion: num [1:195] 771 4791 4445 4549 5210 ...\n\n\n\n\n\n\n\n\nTipEstructura de datos\n\n\n\nEn este curso vamos a usar principalmente:\n\ntibble, para manipulación tidyverse, visualización con timetk, splits y validación.",
     "crumbs": [
       "Unidad 1 · Naturaleza y análisis descriptivo",
-      "<span class='chapter-number'>2</span>  <span class='chapter-title'>Unidad 1 · Sección 1 · Naturaleza de las series</span>"
+      "<span class='chapter-number'>2</span>  <span class='chapter-title'>Sección 1 · Naturaleza de las series</span>"
     ]
   },
   {
     "objectID": "unidad1_1.html#primer-visualización-indispensable-timetk",
     "href": "unidad1_1.html#primer-visualización-indispensable-timetk",
-    "title": "2  Unidad 1 · Sección 1 · Naturaleza de las series",
+    "title": "2  Sección 1 · Naturaleza de las series",
     "section": "4.3 Primer visualización indispensable (timetk())",
     "text": "4.3 Primer visualización indispensable (timetk())\n\n\nCódigo\n#| label: Visualización\n\ndatos |&gt; \n  plot_time_series(\n    .date_var   = fecha,\n    .value      = produccion,\n    .title      = \"Producción mensual de bioetanol en Argentina\",\n    .x_lab      = \"Fecha\",\n    .y_lab      = \"Producción (m³)\",\n    .smooth     = TRUE,           # FALSE para ocultar LOESS\n    .interactive = TRUE          # FALSE para estático\n  )",
     "crumbs": [
       "Unidad 1 · Naturaleza y análisis descriptivo",
-      "<span class='chapter-number'>2</span>  <span class='chapter-title'>Unidad 1 · Sección 1 · Naturaleza de las series</span>"
+      "<span class='chapter-number'>2</span>  <span class='chapter-title'>Sección 1 · Naturaleza de las series</span>"
     ]
   },
   {
     "objectID": "unidad1_1.html#naturaleza-de-las-series-catálogo-visual",
     "href": "unidad1_1.html#naturaleza-de-las-series-catálogo-visual",
-    "title": "2  Unidad 1 · Sección 1 · Naturaleza de las series",
+    "title": "2  Sección 1 · Naturaleza de las series",
     "section": "4.4 Naturaleza de las series: catálogo visual",
     "text": "4.4 Naturaleza de las series: catálogo visual\nLlamamos naturaleza de una serie de tiempo al conjunto de patrones que la caracterizan y la distinguen de cualquier otra: cómo crece o decrece, si repite comportamiento en plazos fijos, si tiene fluctuaciones variables y cuánto “ruido” arrastra. Identificar esta naturaleza es el primer paso del análisis: condiciona las transformaciones que vamos a aplicar, los modelos que tienen sentido y, en definitiva, la calidad del pronóstico que podamos hacer más adelante (Hyndman & Athanasopoulos, 2021, cap. 2; Gujarati, 2017, cap. 12).\n\n\n\n\n\n\nImportante\n\n\n\nToda serie de tiempo se puede pensar como la combinación de cuatro elementos (Hyndman & Athanasopoulos, 2021, sección 2.1):\nTendencia (T) — movimiento de largo plazo. La serie puede crecer, decrecer o permanecer estable a lo largo de los años. Ejemplo: el aumento sostenido en la producción de Bioetanol.\nEstacionalidad (S) — patrón que se repite a intervalos fijos y conocidos (cada mes, cada trimestre, cada lunes). Ejemplo: la suba de temperaturas en diciembre-enero en nuestro país.\nCiclo (C) — fluctuaciones de duración variable, sin calendario fijo, típicamente de varios años. Ejemplo: las manchas solares cada ~11 años en sunspot.month.\nIrregularidad (I) — el “ruido” que queda, todo lo que no es T, S ni C. Idealmente, fluctuaciones aleatorias alrededor de cero.\n\n\nLa tendencia y el ciclo suelen agruparse en un único componente (la tendencia-ciclo), porque distinguirlos por separado requiere información adicional. Para este curso adoptamos la descomposición en cuatro componentes.",
     "crumbs": [
       "Unidad 1 · Naturaleza y análisis descriptivo",
-      "<span class='chapter-number'>2</span>  <span class='chapter-title'>Unidad 1 · Sección 1 · Naturaleza de las series</span>"
+      "<span class='chapter-number'>2</span>  <span class='chapter-title'>Sección 1 · Naturaleza de las series</span>"
     ]
   },
   {
     "objectID": "unidad1_1.html#catálogo-visual",
     "href": "unidad1_1.html#catálogo-visual",
-    "title": "2  Unidad 1 · Sección 1 · Naturaleza de las series",
+    "title": "2  Sección 1 · Naturaleza de las series",
     "section": "4.5 Catálogo visual",
     "text": "4.5 Catálogo visual\nPara las cinco series que ser grafican a continuación, intenta responder estas preguntas:\n\n¿Hay tendencia (subir/bajar de manera sostenida)?\n¿Hay estacionalidad (patrones que se repiten a un intervalo fijo)?\n¿Hay ciclos (subas/bajadas que no respetan un calendario fijo)?\n¿La varianza es constante o cambia con el nivel?\n\n\n4.5.1 El ruido blanco:\n\n\nCódigo\nset.seed(42)\n\nruido_blanco_tbl &lt;- tibble(\n  fecha = seq.Date(\n    from = as_date(\"2015-01-01\"),\n    to   = as_date(\"2024-12-01\"),\n    by   = \"month\"             # 120 observaciones mensuales\n  ),\n  valor = rnorm(n = 120, mean = 0, sd = 1)\n)\n\nruido_blanco_tbl |&gt; \n  plot_time_series(\n    .date_var    = fecha,\n    .value       = valor,\n    .title       = \"Ruido blanco Gaussiano\",\n    .x_lab       = \"Fecha\",\n    .y_lab       = \"Valor\",\n    .smooth      = FALSE,      # sin suavizado: queremos ver el ruido crudo\n    .interactive = FALSE\n  )\n\n\n\n\n\n\n\n\n\nUn ruido blanco es una serie cuyas observaciones son independientes entre sí, con media y varianza constantes en el tiempo. No tiene tendencia, ni estacionalidad, ni ciclo. Si una serie se comporta como ruido blanco, no hay nada predecible que valga la pena modelar.\n\n\n4.5.2 Airmailes\n\n\nCódigo\nairmiles #ts puro de R base\n\n\nTime Series:\nStart = 1937 \nEnd = 1960 \nFrequency = 1 \n [1]   412   480   683  1052  1385  1418  1634  2178  3362  5948  6109  5981\n[13]  6753  8003 10566 12528 14760 16769 19819 22362 25340 25343 29269 30514\n\n\nCódigo\nairmiles_tbl &lt;- airmiles |&gt;\n  tk_tbl() |&gt;\n  rename(millas = value) |&gt;\n  mutate(fecha = seq.Date(\n    from = as.Date(\"1937-01-01\"),\n    to   = as.Date(\"1960-01-01\"),\n    by   = \"year\"))|&gt;\n  select(fecha, millas)\n\nairmiles_tbl\n\n\n# A tibble: 24 × 2\n   fecha      millas\n   &lt;date&gt;      &lt;dbl&gt;\n 1 1937-01-01    412\n 2 1938-01-01    480\n 3 1939-01-01    683\n 4 1940-01-01   1052\n 5 1941-01-01   1385\n 6 1942-01-01   1418\n 7 1943-01-01   1634\n 8 1944-01-01   2178\n 9 1945-01-01   3362\n10 1946-01-01   5948\n# ℹ 14 more rows\n\n\n\n\n\n\n\n\nNota\n\n\n\ntk_tbl() convierte el objeto ts nottem en un tibble con dos columnas: una para el índice temporal convertido a date (fecha) y otra para los valores (millas).\n\n\n\n\nCódigo\nairmiles_tbl |&gt; \n  plot_time_series(\n    .date_var    = fecha,\n    .value       = millas,\n    .title       = \"Millas aéreas voladas en EE.UU. (anual, 1937-1960)\",\n    .x_lab       = \"Año\",\n    .y_lab       = \"Millas\",\n    .smooth      = FALSE,\n    .interactive = FALSE\n  )\n\n\n\n\n\n\n\n\n\nObservamos una frecuencia anual, así que no hay estacionalidad. La tendencia es creciente sostenida (cada año se vuela más millas que el anterior, sin grandes oscilaciones). No tiene ciclos marcados. Es un ejemplo claro de “tendencia pura y simple”.\n\n\n4.5.3 Nottingham: Temperaturas medias mensuales (1920-1939)\n\n\nCódigo\nstr(nottem) # otro objeto st\n\n\n Time-Series [1:240] from 1920 to 1940: 40.6 40.8 44.4 46.7 54.1 58.5 57.7 56.4 54.3 50.5 ...\n\n\nCódigo\nnottem_tbl &lt;- nottem |&gt; \n  tk_tbl() |&gt; \n  rename(mes = index, temperatura = value) |&gt; \n  mutate(mes = as_date(mes))\n\nnottem_tbl |&gt;\n  plot_time_series(\n    .date_var    = mes,\n    .value       = temperatura,\n    .title       = \"Temperatura en Nottingham\",\n    .x_lab       = \"Meses\",\n    .y_lab       = \"Grados Fahrenheit\",\n    .smooth      = FALSE,\n    .interactive = TRUE\n  )\n\n\n\n\n\n\nLa serie nottem muestra: una estacionalidad marcada y regular (valle en enero, pico en julio) que se repite año tras año con la misma amplitud, sin que la media se desplace hacia arriba o hacia abajo.\n\n\n4.5.4 Airpassangers.\n\n\nCódigo\nairpassengers_tbl &lt;- AirPassengers |&gt; \n  tk_tbl() |&gt; \n  rename(fecha = index, pasajeros = value) |&gt; \n  mutate(fecha = as_date(fecha))\n\nairpassengers_tbl |&gt;\n  plot_time_series(\n    .date_var    = fecha,\n    .value       = pasajeros,\n    .title       = \"Total de pasajeros aéreos internacionales\",\n    .x_lab       = \"Meses\",\n    .y_lab       = \"No. de Pasajeros\",\n    .smooth      = FALSE,\n    .interactive = FALSE\n  )\n\n\n\n\n\n\n\n\n\nAirPassengers muestra la cantidad mensual de pasajeros aéreos internacionales entre 1949 y 1960: una tendencia creciente sostenida combinada con una estacionalidad anual que se amplifica con el nivel (los picos de verano son cada vez más altos). Es el ejemplo clásico de estacionalidad multiplicativa con tendencia. La consecuencia práctica: la estacionalidad no se puede modelar como un efecto constante (como en nottem), sino que necesita un tratamiento proporcional al nivel — lo que podría justificar una transformación logarítmica.",
     "crumbs": [
       "Unidad 1 · Naturaleza y análisis descriptivo",
-      "<span class='chapter-number'>2</span>  <span class='chapter-title'>Unidad 1 · Sección 1 · Naturaleza de las series</span>"
+      "<span class='chapter-number'>2</span>  <span class='chapter-title'>Sección 1 · Naturaleza de las series</span>"
     ]
   },
   {
     "objectID": "unidad1_1.html#componentes-formales-de-una-serie",
     "href": "unidad1_1.html#componentes-formales-de-una-serie",
-    "title": "2  Unidad 1 · Sección 1 · Naturaleza de las series",
+    "title": "2  Sección 1 · Naturaleza de las series",
     "section": "4.6 Componentes formales de una serie",
     "text": "4.6 Componentes formales de una serie\nToda serie de tiempo se puede pensar como la combinación de cuatro componentes:\n\nT = Tendencia: movimiento de largo plazo.\nC = Ciclo: fluctuaciones de duración variable, no atadas a un calendario.\nS = Estacionalidad: patrón que se repite a intervalos fijos.\nI = Irregular (o ruido): lo que queda.\n\nHay dos formas clásicas de combinarlos:\n\n\n\n\n\n\n\n\nModelo\nFórmula\nCuándo usarlo\n\n\n\n\nAditivo\n\\(Y_t = T_t + C_t + S_t + I_t\\)\nLa amplitud de la estacionalidad es constante en el tiempo.\n\n\nMultiplicativo\n\\(Y_t = T_t \\cdot C_t \\cdot S_t \\cdot I_t\\)\nLa amplitud de la estacionalidad crece o decrece con el nivel.\n\n\n\n\n\n\n\n\n\nNotaReferencia: Hyndman & Athanasopoulos (2021), sección 3.1.\n\n\n\n¿Aditivo o multiplicativo?\nUna regla práctica: si al graficar la serie los “dientes” de la estacionalidad se van haciendo cada vez más grandes a medida que la serie crece → multiplicativo. Si los dientes tienen siempre el mismo tamaño → aditivo.\nEn la práctica, aplicar log() a una serie con estacionalidad multiplicativa suele “convertirla” en aditiva, porque log(T·S) = log(T) + log(S). Por eso el logaritmo es una de las transformaciones más usadas. (en este curso nos concentraremos en series de componentes aditivos)\n\n\n\n\n\n\n\n\nTipCómo impacta en el modelado\n\n\n\n\nEn un modelo aditivo, los efectos de la estacionalidad y la tendencia se suman.\nEn un modelo multiplicativo, los efectos se multiplican (más realista cuando la varianza crece con el nivel).",
     "crumbs": [
       "Unidad 1 · Naturaleza y análisis descriptivo",
-      "<span class='chapter-number'>2</span>  <span class='chapter-title'>Unidad 1 · Sección 1 · Naturaleza de las series</span>"
+      "<span class='chapter-number'>2</span>  <span class='chapter-title'>Sección 1 · Naturaleza de las series</span>"
     ]
   },
   {
     "objectID": "unidad1_2.html",
     "href": "unidad1_2.html",
-    "title": "3  Unidad 1 · Sección 2 · EDA",
+    "title": "3  Sección 2 · EDA",
     "section": "",
     "text": "4 Objetivo de esta sección\nHasta ahora aprendimos a mirar una serie y a identificar sus componentes (tendencia, estacionalidad, ciclo, irregularidad) y familiarizarno con el entorno de trabajo. En esta sección vamos a prepararla para que un modelo pueda trabajar con ella. Vamos a aprender a realizar un análisis exploratorio más profundo.",
     "crumbs": [
       "Unidad 1 · Naturaleza y análisis descriptivo",
-      "<span class='chapter-number'>3</span>  <span class='chapter-title'>Unidad 1 · Sección 2 · EDA</span>"
+      "<span class='chapter-number'>3</span>  <span class='chapter-title'>Sección 2 · EDA</span>"
     ]
   },
   {
     "objectID": "unidad1_2.html#importación-cruda",
     "href": "unidad1_2.html#importación-cruda",
-    "title": "3  Unidad 1 · Sección 2 · EDA",
+    "title": "3  Sección 2 · EDA",
     "section": "6.1 Importación cruda",
     "text": "6.1 Importación cruda\n\n\nCódigo\ndatos_crudos &lt;- read_csv(\"beer.csv\")\nhead(datos_crudos)\n\n\n# A tibble: 6 × 2\n  Quarter  Beer\n  &lt;chr&gt;   &lt;dbl&gt;\n1 1980 Q1   513\n2 1980 Q2   427\n3 1980 Q3   473\n4 1980 Q4   526\n5 1981 Q1   548\n6 1981 Q2   440\n\n\nLa columna Quarter viene como texto con formato \"1956 Q1\". Antes de poder tratarla como serie de tiempo, tenemos que convertirla a un formato date.",
     "crumbs": [
       "Unidad 1 · Naturaleza y análisis descriptivo",
-      "<span class='chapter-number'>3</span>  <span class='chapter-title'>Unidad 1 · Sección 2 · EDA</span>"
+      "<span class='chapter-number'>3</span>  <span class='chapter-title'>Sección 2 · EDA</span>"
     ]
   },
   {
     "objectID": "unidad1_2.html#parseo-de-la-fecha-trimestral",
     "href": "unidad1_2.html#parseo-de-la-fecha-trimestral",
-    "title": "3  Unidad 1 · Sección 2 · EDA",
+    "title": "3  Sección 2 · EDA",
     "section": "6.2 Parseo de la fecha trimestral",
     "text": "6.2 Parseo de la fecha trimestral\n\n\nCódigo\n# yq() de lubridate parsea strings tipo \"1956 Q1\", \"1956-Q1\", \"1956.Q1\", etc.\ndatos &lt;- datos_crudos |&gt;\n  mutate(fecha = yq(Quarter)) |&gt;\n  select(fecha, cerveza = Beer) |&gt;\n  arrange(fecha)\n\nstr(datos)\n\n\ntibble [122 × 2] (S3: tbl_df/tbl/data.frame)\n $ fecha  : Date[1:122], format: \"1980-01-01\" \"1980-04-01\" ...\n $ cerveza: num [1:122] 513 427 473 526 548 440 469 575 493 433 ...\n\n\n\n\n\n\n\n\nTip¿Por qué yq()?\n\n\n\nyq() es un parser de lubridate específico para fechas económicas trimestrales y devuelve un objeto Date real. El resultado es el primer día del trimestre (p. ej. 1990-01-01 para 1990 Q1).",
     "crumbs": [
       "Unidad 1 · Naturaleza y análisis descriptivo",
-      "<span class='chapter-number'>3</span>  <span class='chapter-title'>Unidad 1 · Sección 2 · EDA</span>"
+      "<span class='chapter-number'>3</span>  <span class='chapter-title'>Sección 2 · EDA</span>"
     ]
   },
   {
     "objectID": "unidad1_2.html#verificación-de-la-grilla-temporal",
     "href": "unidad1_2.html#verificación-de-la-grilla-temporal",
-    "title": "3  Unidad 1 · Sección 2 · EDA",
+    "title": "3  Sección 2 · EDA",
     "section": "7.1 Verificación de la grilla temporal",
     "text": "7.1 Verificación de la grilla temporal\nUna situación frecuente en series económicas es que falten datos. Vamos a chequearlo explícitamente.\n\n\nCódigo\ndatos|&gt; filter(is.na(cerveza))\n\n\n# A tibble: 0 × 2\n# ℹ 2 variables: fecha &lt;date&gt;, cerveza &lt;dbl&gt;\n\n\nEn este dataset la grilla está completa: 122 trimestres observados, 122 trimestres esperados, 0 fechas faltantes. Esto es ideal — muchos datasets reales no tienen tanta suerte.\n\n\n\n\n\n\nTip¿Qué hacer si hay faltantes? (de menor a mayor “fuerza”)\n\n\n\n\nNo hacer nada y aceptar que el método/modelo que vamos a usar sea robusto a NA. Pocos lo son.\nImputación por arrastre (tidyr::fill()): si el faltante es muy puntual, repetir el último valor conocido. Útil para indicadores económicos que cambian lento.\nImputación por interpolación lineal (zoo::na.approx()): suaviza el salto.\nImputación por estacionalidad: reemplazar el valor faltante por el del mismo trimestre del año anterior. Muy razonable para series con estacionalidad marcada.\nImputación por modelo (regresión, k-neighbours, etc.): más costoso pero más preciso.\n\nEn esta unidad no vamos a profundizar en imputación, pero queda la idea: un faltante no se “ignora”, se decide cómo tratar (Hyndman & Athanasopoulos, 2021, sección 3.4).",
     "crumbs": [
       "Unidad 1 · Naturaleza y análisis descriptivo",
-      "<span class='chapter-number'>3</span>  <span class='chapter-title'>Unidad 1 · Sección 2 · EDA</span>"
+      "<span class='chapter-number'>3</span>  <span class='chapter-title'>Sección 2 · EDA</span>"
     ]
   },
   {
     "objectID": "unidad1_2.html#resumen-numérico-de-la-serie",
     "href": "unidad1_2.html#resumen-numérico-de-la-serie",
-    "title": "3  Unidad 1 · Sección 2 · EDA",
+    "title": "3  Sección 2 · EDA",
     "section": "7.2 Resumen numérico de la serie",
     "text": "7.2 Resumen numérico de la serie\ntimetk trae una función muy útil para un resumen ejecutivo de la calidad de una serie: tk_summary_diagnostics(). Devuelve, en un solo tibble, todo lo que típicamente queremos saber antes de empezar a modelar.\n\n\nCódigo\ndatos |&gt;\n  tk_summary_diagnostics(\n    .date_var   = fecha\n  )\n\n\n# A tibble: 1 × 12\n  n.obs start      end        units scale tzone diff.minimum diff.q1 diff.median\n  &lt;int&gt; &lt;date&gt;     &lt;date&gt;     &lt;chr&gt; &lt;chr&gt; &lt;chr&gt;        &lt;dbl&gt;   &lt;dbl&gt;       &lt;dbl&gt;\n1   122 1980-01-01 2010-04-01 days  quar… UTC        7776000 7862400     7862400\n# ℹ 3 more variables: diff.mean &lt;dbl&gt;, diff.q3 &lt;dbl&gt;, diff.maximum &lt;dbl&gt;\n\n\nUTC → zona horaria por defecto (no relevante acá porque son fechas, no datetime con hora).\ndiff. → Están medidos en segundos. diff.minimum = 7776000 segundos = 90 días (Trimestre)",
     "crumbs": [
       "Unidad 1 · Naturaleza y análisis descriptivo",
-      "<span class='chapter-number'>3</span>  <span class='chapter-title'>Unidad 1 · Sección 2 · EDA</span>"
+      "<span class='chapter-number'>3</span>  <span class='chapter-title'>Sección 2 · EDA</span>"
     ]
   },
   {
     "objectID": "unidad1_2.html#visualización-inicial-indispensable",
     "href": "unidad1_2.html#visualización-inicial-indispensable",
-    "title": "3  Unidad 1 · Sección 2 · EDA",
+    "title": "3  Sección 2 · EDA",
     "section": "7.3 Visualización inicial indispensable",
     "text": "7.3 Visualización inicial indispensable\n\n\nCódigo\ndatos |&gt;\n  plot_time_series(\n    .date_var    = fecha,\n    .value       = cerveza,\n    .title       = \"Producción trimestral de cerveza en Australia (1956 – 2010)\",\n    .x_lab       = \"Trimestre\",\n    .y_lab       = \"cerveza (megalitros)\",\n    .smooth      = FALSE\n  )\n\n\n\n\n\n\n\n\n\n\n\n\nImportanteLo que ya nos dice este primer gráfico (¡sin haber modelado nada!)\n\n\n\n\nTendencia decreciente sostenida.\nEstacionalidad trimestral marcada pero aparentemente no-multiplicativa: los “dientes” tienen aplitud estable a medida que la serie decrece (Varianza constante).\nNo hay huecos visuales ni picos aislados que griten “outlier” desde lejos.\n\nEl gráfico anterior no prueba nada, pero orienta todo lo que viene. La estacionalidad aditiva y la varianza constante son señales de que vamos a necesitar.",
     "crumbs": [
       "Unidad 1 · Naturaleza y análisis descriptivo",
-      "<span class='chapter-number'>3</span>  <span class='chapter-title'>Unidad 1 · Sección 2 · EDA</span>"
+      "<span class='chapter-number'>3</span>  <span class='chapter-title'>Sección 2 · EDA</span>"
     ]
   },
   {
     "objectID": "unidad1_2.html#inspección-visual-descomposición-estacional",
     "href": "unidad1_2.html#inspección-visual-descomposición-estacional",
-    "title": "3  Unidad 1 · Sección 2 · EDA",
+    "title": "3  Sección 2 · EDA",
     "section": "7.4 Inspección visual: descomposición estacional",
     "text": "7.4 Inspección visual: descomposición estacional\n\n\nCódigo\ndatos |&gt; \n  plot_stl_diagnostics(.date_var    = fecha,\n                       .value       = cerveza,\n                       .frequency   = 4,\n                       .trend       = 24,\n                       .feature_set = c(\"observed\", \"season\", \"trend\", \"remainder\")\n  )\n\n\n\n\n\n\nEn conjunto, la descomposición muestra que la producción trimestral de cerveza en Australia está dominada por un patrón estacional muy fuerte y estable, acompañado por una tendencia descendente de largo plazo, mientras que la variabilidad residual es relativamente pequeña.\n\n\n\n\n\n\nNotaDefinición de .frequency y .trend\n\n\n\n\n\n\nPeriodicidad\n.frequency\n.trend recomendado\n\n\n\n\nMensual\n12\n24 o 36 +1\n\n\nTrimestral\n4\n8 o 16 +1\n\n\nSemanal\n52\n104 +1\n\n\nDiaria (patrón semanal)\n7\n14 o 28 +1\n\n\n\n\nRegla práctica:\n\n\n.frequency corresponde a la cantidad de observaciones que completan un ciclo estacional.\n.trend indica el tamaño de la ventana utilizada para estimar la tendencia. Cuanto mayor sea este valor, más suave será la tendencia estimada.\n\n\n\nSTL (Seasonal and Trend decomposition using Loess) es un método que descompone una serie temporal en tres componentes principales:\n\\[Observed = Trend+Seasson+Remainder\\]\nLa principal ventaja de STL es que estima cada componente de forma flexible mediante suavizado local (LOESS), por lo que resulta adecuado para series con patrones complejos.\n\n\n\n\n\n\nTipLOESS (Locally Estimated Scatterplot Smoothing)\n\n\n\nEs una técnica de suavizado local que ajusta pequeñas regresiones sobre grupos de observaciones cercanas, en lugar de ajustar una única función para toda la serie. Es decir:\n\nPara estimar el valor de un punto, LOESS utiliza únicamente las observaciones cercanas.\nRepite este procedimiento para cada punto de la serie.\nAl unir todas esas estimaciones se obtiene una curva suave que sigue la tendencia de los datos.\n\nPor eso, en la descomposición STL, la tendencia no se representa mediante una recta o un polinomio, sino mediante una curva que puede adaptarse a cambios graduales en el comportamiento de la serie.\n\nHyndman, R. J., & Athanasopoulos, G. (2021). Forecasting: Principles and Practice (3rd ed.). Capítulo 3: Time Series Decomposition.\nCleveland, R. B., Cleveland, W. S., McRae, J. E., & Terpenning, I. (1990). STL: A Seasonal-Trend Decomposition Procedure Based on Loess. Journal of Official Statistics, 6(1), 3–73.",
     "crumbs": [
       "Unidad 1 · Naturaleza y análisis descriptivo",
-      "<span class='chapter-number'>3</span>  <span class='chapter-title'>Unidad 1 · Sección 2 · EDA</span>"
+      "<span class='chapter-number'>3</span>  <span class='chapter-title'>Sección 2 · EDA</span>"
     ]
   },
   {
     "objectID": "unidad1_2.html#box-plot",
     "href": "unidad1_2.html#box-plot",
-    "title": "3  Unidad 1 · Sección 2 · EDA",
+    "title": "3  Sección 2 · EDA",
     "section": "7.5 Box plot",
     "text": "7.5 Box plot\ntimetk también nos da una vista rápida de la estacionalidad por subperíodo, ideal para detectar trimestres que se desvían del patrón estacional típico, mediante diagramas de caja.\n\n\nCódigo\n# Opcion 1:\ndatos |&gt;\n  plot_seasonal_diagnostics(\n    .date_var = fecha,\n    .value    = cerveza,\n    .title    = \"Diagnóstico estacional — cerveza Australia\"\n  ) \n\n\n\n\n\n\nCódigo\n# Opcion 2:\ndatos |&gt;\n  plot_seasonal_diagnostics(\n    .date_var = fecha,\n    .value    = cerveza,\n    .title    = \"Diagnóstico estacional — cerveza Australia\",\n    .interactive = FALSE\n  ) +\ntheme(\n  axis.text.x = element_text(angle = 45, hjust = 1) \n) # hjust = 1 alineado a la derecha, = 0 a la izquierda, = 0.5 centrado\n\n\n\n\n\n\n\n\n\nLos paneles muestran la distribución de la serie dentro de cada año (panel year) y dentro de cada trimestre (panel quarter). Si todos los años tienen la misma forma, no hay años “raros”; si todos los trimestres tienen la misma forma, no hay trimestres “raros”.",
     "crumbs": [
       "Unidad 1 · Naturaleza y análisis descriptivo",
-      "<span class='chapter-number'>3</span>  <span class='chapter-title'>Unidad 1 · Sección 2 · EDA</span>"
+      "<span class='chapter-number'>3</span>  <span class='chapter-title'>Sección 2 · EDA</span>"
     ]
   },
   {
     "objectID": "unidad1_2.html#outlier-o-anomalía",
     "href": "unidad1_2.html#outlier-o-anomalía",
-    "title": "3  Unidad 1 · Sección 2 · EDA",
+    "title": "3  Sección 2 · EDA",
     "section": "8.1 ¿Outlier o anomalía?",
     "text": "8.1 ¿Outlier o anomalía?\n\nUn outlier clásico (en estadística transversal) es un valor extremo respecto a la distribución de la variable.\nEn series de tiempo preferimos hablar de anomalías: observaciones que se apartan del patrón esperado de la serie (tendencia + estacionalidad), no sólo de la media global.\n\nUn valor “alto” en Q4 puede ser perfectamente normal si la serie tiene estacionalidad fuerte. Y un valor “moderado” puede ser una anomalía si cae en un Q2 donde la serie suele estar baja.",
     "crumbs": [
       "Unidad 1 · Naturaleza y análisis descriptivo",
-      "<span class='chapter-number'>3</span>  <span class='chapter-title'>Unidad 1 · Sección 2 · EDA</span>"
+      "<span class='chapter-number'>3</span>  <span class='chapter-title'>Sección 2 · EDA</span>"
     ]
   },
   {
     "objectID": "unidad1_2.html#diagnóstico-automático-de-anomalías",
     "href": "unidad1_2.html#diagnóstico-automático-de-anomalías",
-    "title": "3  Unidad 1 · Sección 2 · EDA",
+    "title": "3  Sección 2 · EDA",
     "section": "8.2 Diagnóstico automático de anomalías",
     "text": "8.2 Diagnóstico automático de anomalías\nAnaliza únicamente el componente residual, ya que las anomalías son observaciones que no pueden explicarse ni por la tendencia ni por la estacionalidad. Considera como anomalía aquellos datos que caen por debajo del cuarti 1 (Q1) o por encima del cuartil 3 (Q3) en una magnitud equivalente a tres veces el intervalo intercuartílico.\n\n\nCódigo\ndatos |&gt;\n  plot_anomaly_diagnostics(\n    .date_var    = fecha,\n    .value       = cerveza,\n    .title       = \"Diagnóstico de anomalías — cerveza Australia\",\n    .interactive = FALSE\n  )\n\n\n\n\n\n\n\n\n\nEl gráfico marca con puntos rojos los trimestres que la función clasifica como anómalos. La tabla de detalle se obtiene con:\n\n\nCódigo\nanomalias &lt;- datos |&gt;\n  tk_anomaly_diagnostics(\n    .date_var = fecha,\n    .value    = cerveza\n  )\n\nanomalias |&gt;\n  filter(anomaly == \"Yes\") |&gt;\n  arrange(desc(observed))\n\n\n# A tibble: 2 × 11\n  fecha      observed season trend remainder seasadj remainder_l1 remainder_l2\n  &lt;date&gt;        &lt;dbl&gt;  &lt;dbl&gt; &lt;dbl&gt;     &lt;dbl&gt;   &lt;dbl&gt;        &lt;dbl&gt;        &lt;dbl&gt;\n1 1990-10-01      599  71.9   464.      63.2    527.        -57.1         56.4\n2 1981-01-01      548  -3.60  490.      61.5    552.        -57.1         56.4\n# ℹ 3 more variables: anomaly &lt;chr&gt;, recomposed_l1 &lt;dbl&gt;, recomposed_l2 &lt;dbl&gt;\n\n\n\n\n\n\n\n\nImportante¿Borrar o marcar?\n\n\n\nEn series temporales, casi nunca se borra un outlier: la observación es real y forma parte de la historia. Lo que se hace es:\n\nMarcarlo para diagnóstico (como acabamos de hacer).\nConsiderarlo en el modelo (los modelos robustos lo manejan bien; los modelos clásicos lo absorben como parte del ruido). Identificarlo para el modelo como una variable dicotómica cuando el algoritmo lo permita.\nExplicarlo si es posible (huelgas, crisis, cambios regulatorios, errores de carga).\n\nEn esta serie australiana probablemente no aparezcan outliers clásicos que justifiquen intervención: la variación es estructural (estacional + tendencia), no espuria.",
     "crumbs": [
       "Unidad 1 · Naturaleza y análisis descriptivo",
-      "<span class='chapter-number'>3</span>  <span class='chapter-title'>Unidad 1 · Sección 2 · EDA</span>"
+      "<span class='chapter-number'>3</span>  <span class='chapter-title'>Sección 2 · EDA</span>"
     ]
   },
   {
     "objectID": "unidad1_2.html#transformación-logarítmica",
     "href": "unidad1_2.html#transformación-logarítmica",
-    "title": "3  Unidad 1 · Sección 2 · EDA",
+    "title": "3  Sección 2 · EDA",
     "section": "9.1 Transformación logarítmica",
     "text": "9.1 Transformación logarítmica\n\n\nCódigo\ndatos &lt;- datos |&gt;\n  mutate(log_cerveza = log(cerveza))\n\n\n\n\nCódigo\ndatos |&gt;\n  plot_time_series(\n    .date_var    = fecha,\n    .value       = log_cerveza,\n    .title       = \"log(Producción de cerveza) — efecto sobre varianza y estacionalidad\",\n    .x_lab       = \"Trimestre\",\n    .y_lab       = \"log(megalitros)\",\n    .smooth      = FALSE\n  )\n\n\n\n\n\n\nEn este caso la transformación logaritimica no produce cambios porque no era necesaria inicialmente (resolver la actividad sugerida y ver los cambios).\nAcá concluye el EDA de la serie australiana. Esta es un caso de manual: grilla completa, sin anomalías importantes, con estacionalidad aditiva marcada y tendencia decreciente. No require transformaciones y está lista para particionar y modelar.",
     "crumbs": [
       "Unidad 1 · Naturaleza y análisis descriptivo",
-      "<span class='chapter-number'>3</span>  <span class='chapter-title'>Unidad 1 · Sección 2 · EDA</span>"
+      "<span class='chapter-number'>3</span>  <span class='chapter-title'>Sección 2 · EDA</span>"
     ]
   },
   {
     "objectID": "unidad1_2.html#visualización-de-la-partición",
     "href": "unidad1_2.html#visualización-de-la-partición",
-    "title": "3  Unidad 1 · Sección 2 · EDA",
+    "title": "3  Sección 2 · EDA",
     "section": "10.1 Visualización de la partición",
     "text": "10.1 Visualización de la partición\n\n\nCódigo\nsplits |&gt;\n  tk_time_series_cv_plan() |&gt;\n  plot_time_series_cv_plan(\n    .date_var = fecha,\n    .value    = cerveza,\n    .title    = \"Partición train / test — cerveza Australia\",\n    .x_lab    = \"Trimestre\",\n    .y_lab    = \"cerveza (megalitros)\",\n    .interactive = TRUE\n  )\n\n\n\n\n\n\nEl train queda azul y el test queda rojo. La frontera entre ambos es el corte temporal. Lo que se hace después con esto es:\n\nAjustar el modelo sólo sobre train_tbl.\nPronosticar para los próximos n_test períodos.\nComparar el pronóstico con test_tbl.\n\n\n\n\n\n\n\nTip¿Cuánto dejar para test?\n\n\n\nNo hay una regla única, pero como guía:\n\nSeries anuales: 2 a 4 años de test.\nSeries trimestrales: 2 a 4 años (8 a 16 trimestres).\nSeries mensuales: 18 a 24 meses.\nSeries diarias: algunos meses.\nSimplemente el 20%\n\nLa idea es que el test cubra al menos un ciclo estacional completo y, si es posible, un ciclo económico. Acá, con datos trimestrales, 8 trimestres (2 años) alcanzaría para cubrir un ciclo estacional completo.",
     "crumbs": [
       "Unidad 1 · Naturaleza y análisis descriptivo",
-      "<span class='chapter-number'>3</span>  <span class='chapter-title'>Unidad 1 · Sección 2 · EDA</span>"
+      "<span class='chapter-number'>3</span>  <span class='chapter-title'>Sección 2 · EDA</span>"
     ]
   },
   {
     "objectID": "unidad1_2.html#validación-temporal-con-rolling-origin-opcional",
     "href": "unidad1_2.html#validación-temporal-con-rolling-origin-opcional",
-    "title": "3  Unidad 1 · Sección 2 · EDA",
+    "title": "3  Sección 2 · EDA",
     "section": "10.2 Validación temporal con rolling origin (opcional)",
     "text": "10.2 Validación temporal con rolling origin (opcional)\nCuando queremos una evaluación más fina — la partición simple se reemplaza por una validación cruzada con ventana móvil (rolling-origin cross-validation) aunque no la veremos en esta unidad.",
     "crumbs": [
       "Unidad 1 · Naturaleza y análisis descriptivo",
-      "<span class='chapter-number'>3</span>  <span class='chapter-title'>Unidad 1 · Sección 2 · EDA</span>"
+      "<span class='chapter-number'>3</span>  <span class='chapter-title'>Sección 2 · EDA</span>"
     ]
   },
   {
     "objectID": "unidad1_3.html",
     "href": "unidad1_3.html",
-    "title": "4  Unidad 1 · Sección 3 · Camino aleatorio",
+    "title": "4  Sección 3 · Camino aleatorio",
     "section": "",
     "text": "5 Objetivo de esta clase\nEn la clase anterior aprendimos a mirar una serie, diagnosticarla y transformarla cuando hacía falta estabilizar varianza o linealizarla. Antes de pasar a los modelos, vamos a dar un paso más específico: vamos a estudiar un tipo particular de proceso — el camino aleatorio (random walk) — que aparece todo el tiempo en series financieras y económicas, y que tiene una propiedad curiosa: es, al mismo tiempo, uno de los procesos más simples de entender y uno de los más difíciles de pronosticar.",
     "crumbs": [
       "Unidad 1 · Naturaleza y análisis descriptivo",
-      "<span class='chapter-number'>4</span>  <span class='chapter-title'>Unidad 1 · Sección 3 · Camino aleatorio</span>"
+      "<span class='chapter-number'>4</span>  <span class='chapter-title'>Sección 3 · Camino aleatorio</span>"
     ]
   },
   {
     "objectID": "unidad1_3.html#simulación-de-un-camino-aleatorio-sin-deriva",
     "href": "unidad1_3.html#simulación-de-un-camino-aleatorio-sin-deriva",
-    "title": "4  Unidad 1 · Sección 3 · Camino aleatorio",
+    "title": "4  Sección 3 · Camino aleatorio",
     "section": "7.1 Simulación de un camino aleatorio sin deriva",
     "text": "7.1 Simulación de un camino aleatorio sin deriva\nPara simplificar, empecemos con \\(y_0 = 0\\). Bajo estos supuestos, el valor en cualquier instante \\(t\\) es simplemente la suma acumulada de los errores hasta ese momento:\n\\[\ny_t = \\sum_{i=1}^{t} \\epsilon_i\n\\]\n\n\nCódigo\nset.seed(123)\nn &lt;- 200\n# Con Yo = 0\nYt &lt;- rnorm(n, mean = 0, sd = 1) |&gt;  \n  cumsum()  #varepsilon acum\n\ntiempo &lt;- seq(1, by = 1, length.out = n)\n\nYt_RW &lt;- tibble(tiempo = tiempo, Yt = Yt)\n\n\n\n\nCódigo\nYt_RW |&gt;\n  plot_time_series(\n    .date_var    = tiempo,\n    .value       = Yt,\n    .title       = \"Random Walk\",\n    .x_lab       = \"Tiempo\",\n    .y_lab       = \"Yt\",\n    .smooth      = FALSE\n  )\n\n\n\n\n\n\nFijate las características típicas: tramos largos con tendencia positiva o negativa, y cambios abruptos de dirección. Esto no es una tendencia o ciclo real: es simplemente la acumulación de ruido aleatorio. Es una trampa visual muy común, y va a ser importante tenerla presente.",
     "crumbs": [
       "Unidad 1 · Naturaleza y análisis descriptivo",
-      "<span class='chapter-number'>4</span>  <span class='chapter-title'>Unidad 1 · Sección 3 · Camino aleatorio</span>"
+      "<span class='chapter-number'>4</span>  <span class='chapter-title'>Sección 3 · Camino aleatorio</span>"
     ]
   },
   {
     "objectID": "unidad1_3.html#camino-aleatorio-con-deriva",
     "href": "unidad1_3.html#camino-aleatorio-con-deriva",
-    "title": "4  Unidad 1 · Sección 3 · Camino aleatorio",
+    "title": "4  Sección 3 · Camino aleatorio",
     "section": "7.2 Camino aleatorio con deriva",
     "text": "7.2 Camino aleatorio con deriva\n\\[\ny_t = C + y_{t-1} + \\epsilon_t\n\\]\nDonde \\(C \\neq 0\\), decimos que es un camino aleatorio con deriva (random walk with drift). Cada paso todavía tiene la misma cuota de aleatoriedad, pero además hay un “empuje” constante en una dirección.\n\n\nCódigo\nset.seed(123)\n#Yo = 0\n \nderiva &lt;- 2  #(pendiente)\nYt_RWCD &lt;- deriva*tiempo+Yt #Sum u_t\n\n\nYt_RWCD &lt;- tibble(tiempo = tiempo, Yt_RWCD  = Yt_RWCD) \n\n\n\n\nCódigo\nYt_RWCD |&gt;\n  plot_time_series(\n    .date_var    = tiempo,\n    .value       = Yt_RWCD,\n    .title       = \"Random Walk with Drift\",\n    .x_lab       = \"Tiempo\",\n    .y_lab       = \"Yt\",\n    .smooth      = FALSE\n  )\n\n\n\n\n\n\n\n\n\n\n\n\nTipQué mirar en el gráfico\n\n\n\nCon deriva, el proceso conserva la misma volatilidad paso a paso, pero además tiene una tendencia de fondo sistemática: en promedio, cada paso empuja \\(C\\) unidades hacia arriba. Muchas series financieras con tendencia de largo plazo (por ejemplo, un índice bursátil que sube en promedio con el tiempo) se comportan como un camino aleatorio con deriva. La dirección de la deriva depende del signo de \\(C\\).",
     "crumbs": [
       "Unidad 1 · Naturaleza y análisis descriptivo",
-      "<span class='chapter-number'>4</span>  <span class='chapter-title'>Unidad 1 · Sección 3 · Camino aleatorio</span>"
+      "<span class='chapter-number'>4</span>  <span class='chapter-title'>Sección 3 · Camino aleatorio</span>"
     ]
   },
   {
     "objectID": "unidad1_3.html#diferenciación",
     "href": "unidad1_3.html#diferenciación",
-    "title": "4  Unidad 1 · Sección 3 · Camino aleatorio",
+    "title": "4  Sección 3 · Camino aleatorio",
     "section": "8.1 Diferenciación",
     "text": "8.1 Diferenciación\nLa diferenciación (differencing) es una transformación matemática que consiste en reemplazar cada observación por la diferencia entre su valor y el de uno o más períodos anteriores. Su principal objetivo es eliminar cambios sistemáticos en el nivel de la serie, como tendencias o estacionalidades, para obtener una serie aproximadamente estacionaria.\nLa diferencia de orden 1 se define como:\n\\[\n\\Delta Y_t = Y_t - Y_{t-1}\n\\]\nSi la serie aún no es estacionaria luego de una primera diferenciación, puede aplicarse una segunda diferencia:\n\\[\n\\Delta ^2 Y_t = \\Delta Y_t - \\Delta Y_{t-1}\n\\]\nque equivale a:\n\\[\n\\Delta^2 Y_t = Y_t - 2Y_{t-1} + Y_{t-2}\n\\]\nEn series con estacionalidad también puede aplicarse una diferenciación estacional, restando el valor observado un período estacional atrás:\n\\[\n\\Delta_m Y_t = Y_t - Y_{t-m}\n\\]\ndonde (m) representa la longitud del ciclo estacional (por ejemplo, (m=12) para series mensuales o (m=4) para series trimestrales).\n\n\n\n\n\n\nNotaVentajas\n\n\n\n\nElimina tendencias determinísticas o estocásticas.\nReduce la no estacionariedad de la media.\nFacilita la identificación y estimación de modelos ARIMA.\nEs una transformación sencilla.\n\n\n\n\n\n\n\n\n\nNotaDesventajas\n\n\n\n\nReduce la longitud de la serie, ya que se pierden observaciones iniciales.\nUna diferenciación excesiva puede introducir dependencia negativa entre observaciones.\nSi la serie ya era estacionaria, diferenciarla innecesariamente, la convierte en NO estacionaria.\n\n\n\n\n8.1.1 Diferenciación con timetk\nLa librería timetk implementa la función tk_augment_differences(), que permite generar una o varias series diferenciadas sin modificar la serie original. Por ejemplo, diferenciemos nuestro RW:\n\n\nCódigo\nYt_RW |&gt; tk_augment_differences(\n  .value = Yt,\n  .lags = 1\n)\n\n\n# A tibble: 200 × 3\n   tiempo     Yt Yt_lag1_diff1\n    &lt;dbl&gt;  &lt;dbl&gt;         &lt;dbl&gt;\n 1      1 -0.560       NA     \n 2      2 -0.791       -0.230 \n 3      3  0.768        1.56  \n 4      4  0.839        0.0705\n 5      5  0.968        0.129 \n 6      6  2.68         1.72  \n 7      7  3.14         0.461 \n 8      8  1.88        -1.27  \n 9      9  1.19        -0.687 \n10     10  0.746       -0.446 \n# ℹ 190 more rows\n\n\n\n\n\n\n\n\nTip\n\n\n\n\n.lags: rezago utilizado para calcular la diferencia.\n\nPor ejemplo:\n\n.lags = 1 calcula la primera diferencia.\n.lags = 2 calcula la diferencia respecto de dos períodos atrás (no las segundas diferencias).\n.lags = 12 obtiene la diferencia estacional para una serie mensual.\n.lags = c(1, 2, 3) genera simultáneamente tres series: primera diferencia, segunda diferencia y tercera diferencia.\n\nEs importante notar que .lags no representa el orden de diferenciación, sino el rezago utilizado en la transformación.",
     "crumbs": [
       "Unidad 1 · Naturaleza y análisis descriptivo",
-      "<span class='chapter-number'>4</span>  <span class='chapter-title'>Unidad 1 · Sección 3 · Camino aleatorio</span>"
+      "<span class='chapter-number'>4</span>  <span class='chapter-title'>Sección 3 · Camino aleatorio</span>"
     ]
   },
   {
     "objectID": "unidad1_3.html#la-función-de-autocorrelación-acf",
     "href": "unidad1_3.html#la-función-de-autocorrelación-acf",
-    "title": "4  Unidad 1 · Sección 3 · Camino aleatorio",
+    "title": "4  Sección 3 · Camino aleatorio",
     "section": "8.2 La función de autocorrelación (ACF)",
     "text": "8.2 La función de autocorrelación (ACF)\n\n\n\n\n\n\nNotaAutocorrelación\n\n\n\nEn series de tiempo, la autocorrelación mide el grado de relación entre los valores de una serie y sus propios valores pasados. A diferencia de la correlación tradicional, que compara dos variables distintas, la autocorrelación compara una variable consigo misma desplazada en el tiempo. Por ejemplo, si las ventas de este mes son similares a las del mes anterior, existe autocorrelación positiva en el rezago 1. Si cuando un valor es alto el siguiente tiende a ser bajo, existe autocorrelación negativa.\n\n\nFormalmente, la autocorrelación para un rezago \\(k\\) se define como:\n\\[\n\\rho_k=\\frac{\\operatorname{Cov}(Y_t,Y_{t-k})}{\\operatorname{Var}(Y_t)}\n\\]\ndonde:\n\n\\(Y_t\\): valor de la serie en el instante \\(t\\).\n\\(Y_{t-k}\\): valor observado \\(k\\) períodos antes.\n\\(\\rho_k\\): autocorrelación en el rezago \\(k\\) .\n\nSus valores siempre están comprendidos entre -1 y 1:\n\n\\(\\rho_k \\approx 1\\): fuerte asociación positiva.\n\\(\\rho_k \\approx -1\\): fuerte asociación negativa.\n\\(\\rho_k \\approx 0\\): ausencia de relación lineal.\n\nCuando hay tendencia, la ACF muestra coeficientes altos que decaen lentamente a medida que aumenta el rezago. Cuando hay estacionalidad, aparecen picos cíclicos. Graficar la ACF de un proceso no estacionario no aporta demasiada información nueva — por eso siempre la miramos después de asegurar estacionariedad.\n\n8.2.1 Cómo será la ACF de un proceso de ruido blanco?\nUsaremos la funcion plot_acf_diagnostics() para visualizar el comportamiento de la ACF para una realización correspondiente a un proceso de ruido blanco.\n\n\nCódigo\nset.seed(42)\n\nruido_blanco_tbl &lt;- tibble(\n  fecha = seq.Date(\n    from = as_date(\"2015-01-01\"),\n    to   = as_date(\"2024-12-01\"),\n    by   = \"month\"             \n  ),\n  valor = rnorm(n = 120, mean = 0, sd = 1)\n)\n\nruido_blanco_tbl |&gt; plot_acf_diagnostics(\n  .date_var              = fecha,\n  .value                 = valor,\n  .lags                  = 40,\n  .show_white_noise_bars = TRUE\n)\n\n\n\n\n\n\nSi la serie corresponde a una realización de un proceso de ruido blanco, la autocorrelación poblacional es nula para todos los rezagos mayores que cero:\n\\[\n\\rho_k = 0, \\qquad k&gt;0.\n\\]\n\n\n\n\n\n\nNotaAutocorrelaciones muestrales\n\n\n\nSin embargo, en la práctica se observa una única realización del proceso y, por lo tanto, se calculan autocorrelaciones muestrales (\\(\\hat{\\rho}_k\\)). Debido a la variabilidad del muestreo, estos valores no son exactamente cero, sino que fluctúan aleatoriamente alrededor de cero (la mayoría de las autocorrelaciones dentro de las bandas de confianza aproximadas \\(\\pm 1.96/\\sqrt{n}\\)).\n\n\nDe la función de autocorrelación parcial (PACF), nos ocuparemos más adelante.",
     "crumbs": [
       "Unidad 1 · Naturaleza y análisis descriptivo",
-      "<span class='chapter-number'>4</span>  <span class='chapter-title'>Unidad 1 · Sección 3 · Camino aleatorio</span>"
+      "<span class='chapter-number'>4</span>  <span class='chapter-title'>Sección 3 · Camino aleatorio</span>"
     ]
   },
   {
     "objectID": "unidad1_3.html#estacionariedad",
     "href": "unidad1_3.html#estacionariedad",
-    "title": "4  Unidad 1 · Sección 3 · Camino aleatorio",
+    "title": "4  Sección 3 · Camino aleatorio",
     "section": "8.3 Estacionariedad",
     "text": "8.3 Estacionariedad\n\n\n\n\n\n\nNotaDefinición\n\n\n\nUn proceso es estacionario cuando sus propiedades estadísticas — media, varianza y autocorrelación — no cambian a lo largo del tiempo.\n\n\nMuchos modelos clásicos (familia ARIMA) asumen estacionariedad. Intuitivamente: si las propiedades del proceso cambian en el tiempo, los parámetros de cualquier modelo que ajustemos también deberían cambiar en el tiempo — y entonces no hay forma confiable de proyectar el futuro a partir del pasado.\n\n\n\n\n\n\nImportanteActividad\n\n\n\nIntenta calcular la esperanza y la varianza para el proceso random walk\n\n\nSi nuestros modelos de pronóstico requieren de la estacionariedad, cuando una serie muestre un comportamiento no estacionario, deberá aplicarse alguna transformación en la serie de tiempo para hacerla estacionaria, como veremos más adelante.",
     "crumbs": [
       "Unidad 1 · Naturaleza y análisis descriptivo",
-      "<span class='chapter-number'>4</span>  <span class='chapter-title'>Unidad 1 · Sección 3 · Camino aleatorio</span>"
+      "<span class='chapter-number'>4</span>  <span class='chapter-title'>Sección 3 · Camino aleatorio</span>"
     ]
   },
   {
     "objectID": "unidad1_3.html#el-test-de-dickey-fuller-aumentado-adf",
     "href": "unidad1_3.html#el-test-de-dickey-fuller-aumentado-adf",
-    "title": "4  Unidad 1 · Sección 3 · Camino aleatorio",
+    "title": "4  Sección 3 · Camino aleatorio",
     "section": "8.4 El test de Dickey-Fuller aumentado (ADF)",
     "text": "8.4 El test de Dickey-Fuller aumentado (ADF)\nA diferencia del test de Dickey-Fuller original, el ADF incorpora (en la ecuación auxiliar) rezagos de la serie diferenciada para controlar la autocorrelación de los residuos. El modelo general que estima es:\n\\[\n\\Delta Y_t =\nC +\n\\beta t +\n\\gamma Y_{t-1} +\n\\sum_{i=1}^{p}\\delta_i\\Delta Y_{t-i}\n+\\varepsilon_t\n\\]\ndonde:\n\n\\(\\Delta Y_t\\): primera diferencia de la serie (\\(Y_t-Y_{t-1}\\)).\n\\(Y_{t-1}\\): valor rezagado de la serie en niveles.\n\\(p\\): número de rezagos incorporados.\n\\(\\delta_i\\): coeficiente de los rezagos de las diferencias.\n\\(C\\): constante (drift).\n\\(\\beta t\\): tendencia lineal (si se incluye).\n\\(\\gamma\\): parámetro utilizado para contrastar la existencia de una raíz unitaria.\n\nSi \\(\\gamma=0\\), la serie posee una raíz unitaria y no es estacionaria.\n\n\n\n\n\n\nNotaTest ADF\n\n\n\n\n\\(H_0\\): existe una raíz unitaria en la serie (la serie no es estacionaria).\n\\(H_1\\): no existe raíz unitaria (la serie es estacionaria).\n\nEl resultado es el estadístico ADF ( \\(\\tau\\) — cuanto más negativo, más fuerte el rechazo de \\(H_0\\)). Dickey y Fuller probaron que bajo Ho verdadera, el t estimado, sigue al estadístico tau, cuyos valores criticos se calcularon mediante simulaciones de Monte Carlo. (Gujarati & Porter, 2010, Cap 21.9)\n\n\n\n8.4.1 ¿Qué modelo debo utilizar?\nUna de las decisiones más importantes del test ADF es determinar qué componentes determinísticos deben incluirse en la regresión auxiliar. El paquete urca permite especificar tres alternativas mediante el argumento type.\n\n8.4.1.1 type = \"none\"\nSe estima\n\\[\n\\Delta y_t=\n\\gamma y_{t-1}+\n\\sum_{i=1}^{p}\\delta_i\\Delta y_{t-i}\n+\\varepsilon_t\n\\]\n\nNo incorpora ni constante ni tendencia.\n\nSe utiliza únicamente cuando la serie \\(Y_t\\) oscila alrededor de cero, sin nivel medio distinto de cero y sin tendencia visible. Este caso es poco frecuente en aplicaciones reales.\n\n\n8.4.1.2 type = \"drift\"\nSe estima\n\\[\n\\Delta y_t=\nC+\n\\gamma y_{t-1}+\n\\sum_{i=1}^{p}\\delta_i\\Delta y_{t-i}\n+\\varepsilon_t\n\\]\n\nIncluye una constante, pero no una tendencia lineal.\n\nEs la especificación más utilizada cuando la serie (\\(Y_t\\)) presenta un nivel medio distinto de cero pero no muestra una tendencia determinística.\nEjemplos:\n\ntemperatura media anual;\nproducción industrial estabilizada;\nventas que fluctúan alrededor de un promedio constante.\n\n\n\n8.4.1.3 type = \"trend\"\nSe estima\n\\[\n\\Delta y_t=\nC+\n\\beta t+\n\\gamma y_{t-1}+\n\\sum_{i=1}^{p}\\delta_i\\Delta y_{t-i}\n+\\varepsilon_t\n\\]\n\nIncluye tanto una constante como una tendencia lineal.\n\nDebe utilizarse cuando la serie presenta una tendencia aproximadamente lineal antes de realizar el test.\nEjemplos:\n\npoblación;\nPIB;\nseries \\(Y_t\\), cuyo gráfico muestra una clara tendencia ascendente o descendente.\n\n\n\n\n\n\n\nNotaEn resumen\n\n\n\nEn la práctica, la mayoría de las series económicas y ambientales requieren utilizar drift o trend, mientras que la opción none se reserva para casos particulares.\n\n\n\n\n\n8.4.2 Selección del número de rezagos\nAdemás de definir el tipo de modelo, es necesario indicar la cantidad de rezagos (lags) que se incorporarán para eliminar la autocorrelación de los residuos \\(p\\).\nNo existe una regla única para seleccionar este valor. Algunas estrategias habituales son:\n\nutilizar información previa sobre la serie;\ncomparar distintos valores mediante criterios de información (AIC o BIC), es configurable en la función ur.df().\n\n\n\n\n8.4.3 Implementación en R\n\n\nCódigo\nadf &lt;- Yt_RW |&gt; \n  pull(Yt)|&gt; \n  ur.df(type = \"drift\", selectlags = \"AIC\")\n\nsummary(adf)\n\n\n\n############################################### \n# Augmented Dickey-Fuller Test Unit Root Test # \n############################################### \n\nTest regression drift \n\n\nCall:\nlm(formula = z.diff ~ z.lag.1 + 1 + z.diff.lag)\n\nResiduals:\n     Min       1Q   Median       3Q      Max \n-2.15788 -0.56001 -0.00884  0.58559  2.89824 \n\nCoefficients:\n            Estimate Std. Error t value Pr(&gt;|t|)  \n(Intercept)  0.09257    0.07936   1.166   0.2449  \nz.lag.1     -0.05601    0.02483  -2.256   0.0252 *\nz.diff.lag  -0.03689    0.07190  -0.513   0.6085  \n---\nSignif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1\n\nResidual standard error: 0.9377 on 195 degrees of freedom\nMultiple R-squared:  0.02951,   Adjusted R-squared:  0.01955 \nF-statistic: 2.964 on 2 and 195 DF,  p-value: 0.05392\n\n\nValue of test-statistic is: -2.2561 2.5473 \n\nCritical values for test statistics: \n      1pct  5pct 10pct\ntau2 -3.46 -2.88 -2.57\nphi1  6.52  4.63  3.81\n\n\n\n\n\n\n\n\nNotatype\n\n\n\nPorqué elegí drift? para forzar un error 🫠. En general:\n\n¿La serie oscila alrededor de un nivel aproximadamente constante? Sí → drift\n¿La serie presenta una pendiente aproximadamente lineal durante casi toda la muestra? Sí → trend\n¿La serie oscila alrededor de cero? Sí → none",
     "crumbs": [
       "Unidad 1 · Naturaleza y análisis descriptivo",
-      "<span class='chapter-number'>4</span>  <span class='chapter-title'>Unidad 1 · Sección 3 · Camino aleatorio</span>"
+      "<span class='chapter-number'>4</span>  <span class='chapter-title'>Sección 3 · Camino aleatorio</span>"
     ]
   },
   {
     "objectID": "unidad1_3.html#interpretación-test-adf-ur.df",
     "href": "unidad1_3.html#interpretación-test-adf-ur.df",
-    "title": "4  Unidad 1 · Sección 3 · Camino aleatorio",
+    "title": "4  Sección 3 · Camino aleatorio",
     "section": "8.5 Interpretación test ADF (ur.df)",
     "text": "8.5 Interpretación test ADF (ur.df)\nEl paquete urca reporta distintos estadísticos según la especificación elegida (none, drift o trend).\nLos estadísticos φ son tests auxiliares que ayudan a validar la especificación del modelo, mientras que el estadístico τ responde la pregunta principal: ¿la serie tiene una raíz unitaria?\n\n\n\n\n\n\n\n\n\n\nEstadístico\ntype\nH0\nRH0\nNo R H0\n\n\n\n\nτ₁\nnone\n\\(\\gamma = 0\\)\nLa serie es estacionaria alrededor de cero. 👌\nNo hay evidencia para rechazar que existe una raíz unitaria. Es NO estacionaria\n\n\nτ₂\ndrift\n\\(\\gamma = 0\\)\nLa serie es estacionaria (alrededor de una media constante). 👌\nNo hay evidencia para rechazar que existe una raíz unitaria. Es NO estacionaria\n\n\nφ₁\ndrift\n\\(C = 0\\) y \\(\\gamma = 0\\)\nExiste evidencia de que el modelo requiere una constante (drift) o que la serie es estacionaria. El Random Walk sin deriva es incompatible con los datos.\nLos datos son compatibles con un Random Walk sin deriva (conclusión débil - No R H0 nunca es probar que RW es cierto, solo que los datos no dan evidencia en contra).\n\n\nτ₃\ntrend\n\\(\\gamma = 0\\)\nLa serie es estacionaria alrededor de una tendencia determinística. 👌\nNo hay evidencia para rechazar que existe una raíz unitaria. Es NO estacionaria\n\n\nφ₂\ntrend\n\\(C = 0\\), \\(\\beta = 0\\) y \\(\\gamma = 0\\)\nExiste evidencia de que el modelo requiere una constante, una tendencia o que la serie es estacionaria. El Random Walk sin componentes determinísticos es incompatible con los datos.\nLos datos son compatibles con un Random Walk sin constante ni tendencia determinística.\n\n\nφ₃\ntrend\n\\(\\beta = 0\\) y \\(\\gamma = 0\\)\nExiste evidencia de que el modelo requiere una tendencia determinística o que la serie es estacionaria.\nNo hay evidencia suficiente para justificar la inclusión de una tendencia determinística.\n\n\n\nEl daño de la sobreespecificación no es simétrico:\n\nSi existe raíz unitaria (no es estacionaria, con o sin deriva) → sobreespecificar (agregar constante o tendencia de más) casi no distorsiona la conclusión. El τ sigue sin rechazar, como corresponde.\nSi no exite raíz unitaria (la serie ES estacionaria) → ahí sí sobreespecificar es peligroso: agregar constante/tendencia innecesarias le resta potencia al test, y puede hacer que τ no rechace aunque debería (error tipo II).\n\nComo en la práctica no sabemos de antemano si estamos en el caso peligroso o no, se complementan las dos pruebas. Entonces, como procedemos?\n\n\n\n\n\n\nImportanteProcedimiento recomendado\n\n\n\nPaso 1: Pedimos los tres types arrancando por el más completo.\nPaso 2: Sometemos los resultados al siguiente árbol de decisión:\n\n\n\n\n\nCódigo\nadf &lt;- Yt_RW |&gt; \n  pull(Yt)|&gt; \n  ur.df(type = \"trend\", selectlags = \"AIC\")\n\nsummary(adf)\n\n\n\n############################################### \n# Augmented Dickey-Fuller Test Unit Root Test # \n############################################### \n\nTest regression trend \n\n\nCall:\nlm(formula = z.diff ~ z.lag.1 + 1 + tt + z.diff.lag)\n\nResiduals:\n     Min       1Q   Median       3Q      Max \n-2.18117 -0.54020 -0.08912  0.56928  2.95658 \n\nCoefficients:\n             Estimate Std. Error t value Pr(&gt;|t|)  \n(Intercept)  0.286149   0.154373   1.854   0.0653 .\nz.lag.1     -0.065689   0.025628  -2.563   0.0111 *\ntt          -0.001759   0.001204  -1.460   0.1458  \nz.diff.lag  -0.036585   0.071688  -0.510   0.6104  \n---\nSignif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1\n\nResidual standard error: 0.935 on 194 degrees of freedom\nMultiple R-squared:  0.04006,   Adjusted R-squared:  0.02522 \nF-statistic: 2.699 on 3 and 194 DF,  p-value: 0.04701\n\n\nValue of test-statistic is: -2.5632 2.419 3.6261 \n\nCritical values for test statistics: \n      1pct  5pct 10pct\ntau3 -3.99 -3.43 -3.13\nphi2  6.22  4.75  4.07\nphi3  8.43  6.49  5.47\n\n\n\n\nCódigo\nadf &lt;- Yt_RW |&gt; \n  pull(Yt)|&gt; \n  ur.df(type = \"none\", selectlags = \"AIC\")\n\nsummary(adf)\n\n\n\n############################################### \n# Augmented Dickey-Fuller Test Unit Root Test # \n############################################### \n\nTest regression none \n\n\nCall:\nlm(formula = z.diff ~ z.lag.1 - 1 + z.diff.lag)\n\nResiduals:\n     Min       1Q   Median       3Q      Max \n-2.14272 -0.48980  0.04787  0.65310  3.03813 \n\nCoefficients:\n           Estimate Std. Error t value Pr(&gt;|t|)  \nz.lag.1    -0.04029    0.02087  -1.931    0.055 .\nz.diff.lag -0.04473    0.07165  -0.624    0.533  \n---\nSignif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1\n\nResidual standard error: 0.9385 on 196 degrees of freedom\nMultiple R-squared:  0.02276,   Adjusted R-squared:  0.01279 \nF-statistic: 2.282 on 2 and 196 DF,  p-value: 0.1047\n\n\nValue of test-statistic is: -1.9306 \n\nCritical values for test statistics: \n      1pct  5pct 10pct\ntau1 -2.58 -1.95 -1.62\n\n\n\n\n\n\n\n\nImportanteActividad sugerida\n\n\n\nAplica el test de D-F a nuestra caminata aleatoria con deriva.",
     "crumbs": [
       "Unidad 1 · Naturaleza y análisis descriptivo",
-      "<span class='chapter-number'>4</span>  <span class='chapter-title'>Unidad 1 · Sección 3 · Camino aleatorio</span>"
+      "<span class='chapter-number'>4</span>  <span class='chapter-title'>Sección 3 · Camino aleatorio</span>"
     ]
   },
   {
     "objectID": "unidad1_3.html#ahora-sí-podemos-discriminar-un-camino-aleatorio",
     "href": "unidad1_3.html#ahora-sí-podemos-discriminar-un-camino-aleatorio",
-    "title": "4  Unidad 1 · Sección 3 · Camino aleatorio",
+    "title": "4  Sección 3 · Camino aleatorio",
     "section": "8.6 Ahora sí podemos discriminar un camino aleatorio",
     "text": "8.6 Ahora sí podemos discriminar un camino aleatorio\n\n\n\n\n\n\nNotaRecordar\n\n\n\nEn el contexto de series de tiempo, decimos que una serie es un camino aleatorio si su primera diferencia es estacionaria y no está autocorrelacionada. Esa definición combina las tres ideas que vimos por separado: primeras diferencias, autocorrelación y estacionariedad.\n\n\nHasta ahora vimos las herramientas por separado: cómo diferenciar, cómo leer la ACF y cómo aplicar el ADF. La pregunta de fondo de esta clase — ¿esta serie es un camino aleatorio? — se responde combinándolas en un procedimiento único.\n\n8.6.1 El workflow\nPaso 1 · Visualizar la serie.\nPaso 2 · Test ADF en niveles (procedimiento de los tres type que vimos, arrancando por trend).\nQue la serie sea NO estacionaria es requisito necesario para un RW pero no suficiente.\nPaso 3 · Calcular la primera diferencia\n\\(\\Delta Y_t = Y_t - Y_{t-1}\\).\nPaso 4 · Test ADF sobre \\(\\Delta Y_t\\).\nAquí sí esperamos rechazar H₀: la diferencia de un proceso no estacionario es candidata a ser estacionaria.\n\nSi se rechaza H₀ → la primera diferencia es estacionaria. Luego, pasamos al paso 5.\n\nPaso 5 · ACF de \\(\\Delta Y_t\\).\nMiramos la función de autocorrelación de la diferencia:\n\nSi los coeficientes están dentro de las bandas de ruido blanco (\\(\\pm 1{,}96/\\sqrt{n}\\)) → \\(\\Delta Y_t\\) no está autocorrelacionada → Tenemos un RW.\n\nPaso 6 · Formalizamos el paso 5. 🏁\nTest de Ljung–Box:\n\\(H0=ρ_1=⋯=ρ_m =0\\) (ruido blanco, no hay autocorrelación)\nvs.\n\\(H1:∃k≤m:ρ_k\\ne0\\) (no es ruido blanco, hay alguna autocorrelación significativa)\n\n\n\n\n\n\nNotaTest de Ljung–Box (Q)\n\n\n\nEs el test formal de referencia para decidir si una serie se comporta como ruido blanco — el complemento natural del Paso 5 del workflow.\nHipótesis:\n\\[H_0: \\rho_1 = \\rho_2 = \\dots = \\rho_m = 0 \\quad \\text{(no hay autocorrelación conjunta hasta el rezago } m\\text{)}\\]\nEstadístico:\n\\[Q = n(n+2)\\sum_{k=1}^{m}\\frac{\\hat\\rho_k^2}{n-k} \\;\\sim\\; \\chi^2(m)\\]\nEn R: Box.test(x, lag = m, type = \"Ljung-Box\") — viene en stats, no necesita paquete extra.\nPor qué este y no otro:\n\nEs el test estándar de la metodología Box–Jenkins: está hecho exactamente para responder “esta serie, ¿es ruido blanco?”.\nTestea varios rezagos en simultáneo, no uno por uno como el visual.\n\nCuántos rezagos m usar:\nLa elección de m no es automática, adoptamos la regla propuesta en Hyndman & Athanasopoulos (2021), fpp3 Cap. 5:\n\n\\(m = \\min(10,\\, n/5)\\) para series no estacionales y,\nPara series con estacionalidad de período \\(s\\), el equivalente es \\(m = \\min(2s,\\, n/5)\\).\n\nPara YPF (\\(n \\approx 375\\)): \\(m = \\min(10,\\, 75) = 10\\).\nNota: ¿Por qué usar un m relativamente pequeño?\nPorque el test de Ljung–Box acumula la autocorrelación de los primeros rezagos. Si una serie no es ruido blanco, normalmente la dependencia aparece en los rezagos cercanos. Incorporar muchos rezagos adicionales agrega principalmente ruido al estadístico y reduce su capacidad para detectar autocorrelación real.\n\n\n\n\n\n\n\n\nTipPor qué estos tres pasos juntos, y no uno solo\n\n\n\n\nEl ADF en niveles te dice si hay raíz unitaria (información sobre la serie original).\nEl ADF en diferencias te dice si basta con una sola diferenciación (información sobre el orden de integración).\nLa ACF en diferencias te dice si esa diferenciación “agotó” toda la estructura (información sobre la dinámica residual).\n\nSi cualquiera de los tres falla, lo que tenemos no es un camino aleatorio puro: puede ser un RW con deriva, un RW con ruido, una serie \\(I(2)\\), o un proceso estacionario mal diferenciado.",
     "crumbs": [
       "Unidad 1 · Naturaleza y análisis descriptivo",
-      "<span class='chapter-number'>4</span>  <span class='chapter-title'>Unidad 1 · Sección 3 · Camino aleatorio</span>"
+      "<span class='chapter-number'>4</span>  <span class='chapter-title'>Sección 3 · Camino aleatorio</span>"
     ]
   },
   {
     "objectID": "unidad1_3.html#implicancias-para-el-pronóstico",
     "href": "unidad1_3.html#implicancias-para-el-pronóstico",
-    "title": "4  Unidad 1 · Sección 3 · Camino aleatorio",
+    "title": "4  Sección 3 · Camino aleatorio",
     "section": "10.1 Implicancias para el pronóstico",
     "text": "10.1 Implicancias para el pronóstico\nEn la introducción de la clase dijimos que un camino aleatorio es “uno de los procesos más simples de entender y uno de los más difíciles de pronosticar”. Veamos por qué.\nSi el proceso que genera los datos es \\(Y_t = Y_{t-1} + \\varepsilon_t\\) con \\(\\varepsilon_t\\) i.i.d. y \\(\\mathbb{E}[\\varepsilon_t] = 0\\), el mejor pronóstico de \\(Y_{t+h}\\) a partir de toda la información hasta \\(t\\) es:\n\\[\n\\hat{Y}_{t+h\\mid t} \\;=\\; Y_t\n\\]\n\n\n\n\n\n\nNota¿Por qué? ¿No hay forma demejorar esto?\n\n\n\nPor inducción: \\(\\mathbb{E}[Y_{t+h}\\mid Y_t] = \\mathbb{E}[Y_{t+h-1} + \\varepsilon_{t+h}\\mid Y_t] = \\mathbb{E}[Y_{t+h-1}\\mid Y_t] = \\dots = Y_t\\). Cada shock futuro tiene esperanza cero y no aporta información aprovechable. El pasado no ayuda a predecir el RW (más allá de saber dónde estamos parados hoy).\n\n\nEl error de pronóstico a horizonte \\(h\\) es:\n\\[\ne_{t+h} = Y_{t+h} - \\hat{Y}_{t+h\\mid t} = \\sum_{j=1}^{h} \\varepsilon_{t+j}\n\\]\ncon\n\\[\n\\mathbb{E}[e_{t+h}] = 0, \\qquad \\operatorname{Var}(e_{t+h}) = h\\,\\sigma^2\n\\]\nPor lo tanto, un intervalo de predicción al 95% para \\(Y_{t+h}\\) es:\n\\[\nY_t \\;\\pm\\; 1{,}96\\,\\sigma\\,\\sqrt{h}\n\\]\n\n\n\n\n\n\nTipLectura práctica\n\n\n\n\nEl intervalo se ensancha con \\(\\sqrt{h}\\), no con \\(h\\). Eso es más lento, pero igual de inexorable: a horizonte 4 veces mayor, el intervalo es 2 veces más ancho.\nEn activos financieros, esta propiedad suele citarse como la versión formal de la hipótesis de mercados eficientes: si los precios siguieran un patrón predecible, alguien ya lo habría explotado.",
     "crumbs": [
       "Unidad 1 · Naturaleza y análisis descriptivo",
-      "<span class='chapter-number'>4</span>  <span class='chapter-title'>Unidad 1 · Sección 3 · Camino aleatorio</span>"
+      "<span class='chapter-number'>4</span>  <span class='chapter-title'>Sección 3 · Camino aleatorio</span>"
     ]
   }
 ]
